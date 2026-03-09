@@ -7,7 +7,7 @@ We also need a way to manage the full collection of items — a digital list tha
 
 Finally, when a user picks items, we need to group them into a single transaction. This transaction object should store the selected items and compute the total cost.
 
-## Candiate Classes
+## Candidate Classes
 - Transaction
 - Food
 - FoodCollection
