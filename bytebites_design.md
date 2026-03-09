@@ -12,19 +12,20 @@ class User {
   +addTransaction(tx: Transaction) void
   +getPurchaseHistory() List~Transaction~
   +hasPurchaseHistory() bool
+  +isVerifiedUser() bool
 }
 
 class Food {
   -UUID foodId
   -String name
-  -Money price
-  -FoodCategory category
+  -Decimal price
+  -String category
   -float popularityRating
-  +Food(name: String, price: Money, category: FoodCategory, popularityRating: float)
+  +Food(name: String, price: Decimal, category: String, popularityRating: float)
   +getId() UUID
   +getName() String
-  +getPrice() Money
-  +getCategory() FoodCategory
+  +getPrice() Decimal
+  +getCategory() String
   +getPopularityRating() float
   +isValid() bool
 }
@@ -35,7 +36,7 @@ class FoodCollection {
   +removeFood(foodId: UUID) bool
   +getById(foodId: UUID) Food
   +listAll() List~Food~
-  +filterByCategory(category: FoodCategory) List~Food~
+  +filterByCategory(category: String) List~Food~
   +searchByName(term: String) List~Food~
   +topRated(limit: int) List~Food~
 }
@@ -45,25 +46,21 @@ class Transaction {
   -UUID userId
   -List~Food~ items
   -DateTime createdAt
+  -TransactionStatus status
   +Transaction(userId: UUID)
   +addItem(food: Food) void
   +removeItem(foodId: UUID) bool
   +getItems() List~Food~
-  +calculateTotal() Money
+  +calculateTotal() Decimal
   +isEmpty() bool
-  +checkout() Receipt
-}
-
-class FoodCategory {
-  <<enumeration>>
-  BURGERS
-  DRINKS
-  DESSERTS
-  SIDES
-  OTHER
+  +checkout() bool
 }
 
 User "1" --> "0..*" Transaction : places
-Transaction "1" o-- "1..*" Food : contains
+Transaction "1" o-- "0..*" Food : contains
 FoodCollection "1" o-- "0..*" Food : manages
-Food --> FoodCategory : categorized as
+
+note for User "Security: validate/sanitize name input; return defensive copy of purchase history"
+note for Food "Validation: price >= 0, popularityRating in [0,5], category from allowed set"
+note for FoodCollection "Scalability: Map index for O(1) lookup by id; filter/search are read-only"
+note for Transaction "Integrity: server-side total calculation; status transition guards at checkout"
